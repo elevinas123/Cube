@@ -75,15 +75,39 @@ const line = (c1, c2) => {
   }
 };
 
-const square = (matrix) => {
-  console.log("matrix", matrix)
+const findInOrOut = (matrix, [y, x]) =>{
+  let sortedMatrix = matrix.sort((a, b) => a[1]-b[1])
+  let s1 = slope(sortedMatrix[0], sortedMatrix[1])
+  let s2 = slope(sortedMatrix[0], sortedMatrix[2])
+  let s3 = slope(sortedMatrix[3], sortedMatrix[2])
+  let s4 = slope(sortedMatrix[3], sortedMatrix[1])
+  let [n1, n2, p1, p2] = [s1, s2, s3, s4].sort((a, b) => a[0]-b[0])
+  
+
+  if (y>Math.min(n1[0]*x+n1[1], n2[0]*x+n2[1]) && y<Math.max(n1[0]*x+n1[1], n2[0]*x+n2[1]) && y>Math.min(p1[0]*x+p1[1], p2[0]*x+p2[1]) && y<Math.max(p1[0]*x+p1[1], p2[0]*x+p2[1])) {
+    return true
+  }
+  return false
+}
+
+const square = (matrix, colour) => {
   matrix = matrix.map(i => i.map(j => Math.floor(j)))
   let [c1, c2, c3, c4] = matrix.sort((a, b) => a[0] - b[0]);
-  
+  let [p1, p2, p3, p4] = matrix.sort((a, b) => a[1]-b[1])
   line(c1, c2);
   line(c1, c3);
   line(c2, c4);
   line(c3, c4);
+
+  for(let i=c1[0]; i<=c4[0]; i++) {
+    for(let j=p1[1]; j<=p4[1]; j++) {
+      if (findInOrOut(matrix, [i, j])) {
+        cube[i][j] = colour
+      } 
+    }
+  }
+
+
 };
 const fullCube = (matrix, displaceX, displaceY) => {
   let dispMatrix = matrix.map(i => [i[0]+displaceY, i[1]+displaceX])
@@ -96,16 +120,13 @@ const fullCube = (matrix, displaceX, displaceY) => {
       index = ind
     }
   })
-  console.log("len", lengthMatrix)
-  console.log("disp", dispMatrix)
-  console.log("index", index)
+
   let mainIndex = (index+2)%4
-  
-  console.log(mainIndex)
+
   cube = cube.map(i => i.map(j => 0))
-  square(matrix)
-  square([matrix[(mainIndex+3)%4], matrix[mainIndex], dispMatrix[(mainIndex+3)%4], dispMatrix[mainIndex]])
-  square([matrix[(mainIndex+1)%4], matrix[mainIndex], dispMatrix[(mainIndex+1)%4], dispMatrix[mainIndex]])
+  square(matrix, 4)
+  square([matrix[(mainIndex+3)%4], matrix[mainIndex], dispMatrix[(mainIndex+3)%4], dispMatrix[mainIndex]], 5)
+  square([matrix[(mainIndex+1)%4], matrix[mainIndex], dispMatrix[(mainIndex+1)%4], dispMatrix[mainIndex]], 6)
   cube[Math.floor(matrix[0][0])][Math.floor(matrix[0][1])] = 3
   cube[Math.floor(matrix[1][0])][Math.floor(matrix[1][1])] = 4
   cube[Math.floor(matrix[2][0])][Math.floor(matrix[2][1])] = 5
@@ -125,8 +146,8 @@ const rotate = (matrix, deg, center) => {
     ];
   });
   cords = newMatrix;
-  fullCube(newMatrix, -5, 20);
+  fullCube(newMatrix, -5, 5);
 };
   const anim = () => {
-    setInterval(() => rotate(cords, -0.5, rotationCenterCords), 10);
+    setInterval(() => rotate(cords, 0.5, rotationCenterCords), 20);
   };
